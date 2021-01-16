@@ -1,8 +1,9 @@
 <template>
   <el-table :data="tableData" border style="width: 100%">
-    <el-table-column prop="date" label="注册时间" width="180"> </el-table-column>
-    <el-table-column prop="name" label="姓名" width="180"> </el-table-column>
-    <el-table-column prop="address" label="手机号"> </el-table-column>
+    <el-table-column prop="date" label="创建时间" width="180"> </el-table-column>
+    <el-table-column prop="name" label="创建人" width="180"> </el-table-column>
+    <el-table-column prop="address" label="问卷标题"> </el-table-column>
+    <el-table-column prop="address" label="答卷数量"> </el-table-column>
     <el-table-column label="操作" width="160">
       <template slot-scope="scope">
         <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
@@ -27,27 +28,27 @@ export default {
         {
           date: "2016-05-02",
           name: "王小虎",
-          address: "上海市普陀区金沙江路 1518 弄",
+          address: "上海市普陀区",
         },
         {
           date: "2016-05-04",
           name: "王小虎",
-          address: "上海市普陀区金沙江路 1517 弄",
+          address: "上海市普陀区",
         },
         {
           date: "2016-05-01",
           name: "王小虎",
-          address: "上海市普陀区金沙江路 1519 弄",
+          address: "上海市普陀区",
         },
          {
           date: "2016-05-01",
           name: "王小虎",
-          address: "上海市普陀区金沙江路 1519 弄",
+          address: "上海市普陀区",
         },
         {
           date: "2016-05-03",
           name: "王小虎",
-          address: "上海市普陀区金沙江路 1516 弄",
+          address: "上海市普陀区",
         },
       ],
     };

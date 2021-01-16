@@ -1,5 +1,5 @@
 <template>
-  <div class="user">
+  <div class="docs">
     <Layout>
       <template #aside>
         <Aside :index="current"></Aside>
@@ -8,25 +8,25 @@
       <template #breadcrumb>
         <el-breadcrumb separator="/">
           <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item>用户管理</el-breadcrumb-item>
+          <el-breadcrumb-item>问卷管理</el-breadcrumb-item>
         </el-breadcrumb>
       </template>
 
       <template #content>
         <div class="user_opa_wrap">
           <div class="search_wrap">
-            <span class="label">搜索用户</span>
+            <span class="label">搜索问卷</span>
             <el-input
-              placeholder="请根据手机号搜索"
+              placeholder="请输入关键词搜索"
               prefix-icon="el-icon-search"
               v-model="aaa"
             >
             </el-input>
             <el-button type="primary" plain>搜索</el-button>
           </div>
-          <el-button type="primary">新增用户</el-button>
+          <el-button type="primary">新增问卷</el-button>
         </div>
-        <UserTable></UserTable>
+        <DocsTable></DocsTable>
         <el-pagination background layout="prev, pager, next" :total="1000">
         </el-pagination>
       </template>
@@ -37,25 +37,26 @@
 <script>
 import Layout from "../../components/layout.vue";
 import Aside from "../../components/aside.vue";
-import UserTable from "../../components/userTable";
+import DocsTable from "../../components/docsTable";
 
 export default {
   data() {
     return {
-      current: "1",
+      current: "2",
       aaa: "",
     };
   },
   components: {
     Layout,
     Aside,
-    UserTable,
+    DocsTable
   },
 };
 </script>
 
+
 <style lang="less" scoped>
-.user {
+.docs {
   .user_opa_wrap {
     width: 100%;
     height: 60px;
