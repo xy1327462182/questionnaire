@@ -5,10 +5,17 @@
       <div class="err_msg" v-show="errShow">{{errmsg}}</div>
       <el-form label-position="right" label-width="70px">
         <el-form-item label="手机号" required>
-          <el-input placeholder="请输入手机号" v-model="phone"></el-input>
+          <el-input 
+            placeholder="请输入手机号" 
+            v-model="phone" 
+          ></el-input>
         </el-form-item>
         <el-form-item label="密码" required>
-          <el-input placeholder="请输入密码" v-model="pwd" show-password></el-input>
+          <el-input 
+            placeholder="请输入密码" 
+            v-model="pwd" 
+            show-password
+          ></el-input>
         </el-form-item>
       </el-form>
       <el-button type="primary" :loading="false" @click="handleLogin" >登录</el-button>
@@ -17,6 +24,8 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   data() {
     return {
@@ -27,7 +36,8 @@ export default {
     }
   },
   methods: {
-    handleLogin() {
+    async handleLogin() {
+      //验证表单
       if (!this.phone) {
         this.errmsg = '手机号不能为空',
         this.errShow = true
@@ -52,7 +62,35 @@ export default {
       }
       this.errmsg = ''
       this.errShow = false
-      console.log('login。。。');
+      //发送登录请求
+      const loginRes = await axios({
+        url: '/api/users/login',
+        method: 'post',
+        data: {
+          phone: this.phone,
+          password: this.pwd
+        }
+      })
+      //console.log(loginRes);
+      if (loginRes.data.code == 0) {
+        //登录成功
+        //将用户信息存进缓存
+        window.localStorage.setItem('username', loginRes.data.data.username)
+        //跳转到后台管理首页
+        this.$router.replace({
+          path: '/home'
+        })
+      }
+    },
+  },
+  created() {
+    const username = window.localStorage.getItem('username')
+    if (username) {
+      //如果有缓存
+      //跳转到后台管理首页
+      this.$router.replace({
+        path: '/home'
+      })
     }
   }
 };
