@@ -4,6 +4,7 @@ import VueRouter from 'vue-router'
 import Home from '../pages/home'
 import User from '../pages/user'
 import UserAdd from '../pages/user/edit.vue'
+import Question from '../pages/question'
 import Docs from '../pages/docs'
 import Login from '../pages/login'
 
@@ -38,6 +39,11 @@ const routes = [
     path: '/docs',
     name: 'Docs',
     component: Docs
+  },
+  {
+    path: '/question',
+    name: 'Question',
+    component: Question
   }
 ]
 

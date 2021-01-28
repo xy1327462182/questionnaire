@@ -23,11 +23,11 @@ router.post('/', async (req, res) => {
   // console.log(phone, password, role, username);
   const user = await User.findOne({ phone: phone })
   if (user) {
-    console.log(user);
+    // console.log(user);
     //如果查询到 证明已经注册
     res.json({
       code: 1,
-      message: '您已经注册过'
+      message: '该手机号已注册'
     })
     return
   } else {
@@ -139,7 +139,7 @@ router.get('/find', async (req, res) => {
   }
 })
 
-//更新用户
+//更新整个用户信息
 router.post('/update', async (req, res) => {
   let { form } = req.body
   try {
@@ -187,6 +187,59 @@ router.post('/update', async (req, res) => {
   }
 })
 
+//根据id 更新用户名
+router.post('/updateUsername', async (req, res) => {
+  let { id, username } = req.body
+  try {
+    //根据id 更新用户名
+    await User.findOneAndUpdate({ _id: id }, {
+      username: username
+    })
+    // console.log(result);
+    res.json({
+      code: 0,
+      message: '更新成功'
+    })
+  } catch (e) {
+    console.log(e);
+    res.json({
+      code: 1,
+      message: '网络错误，稍后再试'
+    })
+  }
+})
+
+//根据id 更新手机号
+router.post('/updatePhone', async (req, res) => {
+  let { id, phone } = req.body
+  try {
+    //查询数据库中，是否有该手机号
+    const phoneUser = await User.findOne({ phone: Number(phone) })
+    if (phoneUser) {
+      return res.json({
+        code: 1,
+        message: '该手机号已存在'
+      })
+    } else {
+      //根据id 更新用户名
+      await User.findOneAndUpdate({ _id: id }, {
+        phone: phone
+      })
+      // console.log(result);
+      res.json({
+        code: 0,
+        message: '更新成功'
+      })
+    }
+  } catch (e) {
+    console.log(e);
+    res.json({
+      code: 1,
+      message: '网络错误，稍后再试'
+    })
+  }
+})
+
 //删除用户
 router.get('/del', async (req, res) => {
   let { id } = req.query
@@ -219,13 +272,19 @@ router.post('/login', async (req, res) => {
   })
 
   if (user) {
+    console.log(user);
     //设置session
     req.session.userInfo = user
     return res.json({
       code: 0,
       message: '登录成功',
+      isAdmin: user.role == 'admin' ? true : false,
       data: {
-        username: user.username
+        username: user.username,
+        avatar: user.avatar,
+        phone: user.phone,
+        registerTime: user.registerTime,
+        id: user._id
       }
     })
   } else {

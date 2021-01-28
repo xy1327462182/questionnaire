@@ -24,7 +24,7 @@
       <router-link to="/question">
         <el-menu-item index="3">
           <i class="el-icon-question"></i>
-          <span slot="title">问题管理</span>
+          <span slot="title">问题配置</span>
         </el-menu-item>
       </router-link>
     </el-menu>
