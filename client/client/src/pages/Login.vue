@@ -164,7 +164,7 @@ export default {
     height: 30px;
     text-align: center;
     position: absolute;
-    bottom: 180px;
+    top: 440px;
     color: #fff;
     font-size: 16px;
   }

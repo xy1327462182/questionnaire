@@ -8,6 +8,7 @@ import { Cell, CellGroup } from 'vant';
 import { Popup } from 'vant';
 import { Icon } from 'vant';
 import { Toast } from 'vant';
+import { Switch } from 'vant';
 
 Vue.use(Button);
 Vue.use(Tabbar);
@@ -20,3 +21,4 @@ Vue.use(CellGroup);
 Vue.use(Popup);
 Vue.use(Icon);
 Vue.use(Toast);
+Vue.use(Switch);

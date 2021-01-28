@@ -4,6 +4,7 @@ import Home from '../pages/Home.vue'
 import Register from '../pages/Register.vue'
 import Login from '../pages/Login.vue'
 import Docs from '../pages/Docs.vue'
+import Edit from '../pages/Edit.vue'
 import User from '../pages/User.vue'
 
 Vue.use(VueRouter)
@@ -32,6 +33,11 @@ const routes = [
     path: '/docs',
     name: 'Docs',
     component: Docs
+  },
+  {
+    path: '/edit',
+    name: 'Edit',
+    component: Edit
   },
   {
     path: '/user',

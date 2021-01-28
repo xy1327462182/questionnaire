@@ -2,8 +2,8 @@
   <div class="docs">
     <div class="add_docs_wrap">
       <p class="docs_title_wrap"><span class="docs_title_icon">* </span>问卷名称</p>
-      <textarea id="docs_title" placeholder="请输入名称"></textarea>
-      <van-button type="primary" round block>创建问卷</van-button>
+      <textarea id="docs_title" placeholder="请输入名称" v-model="docsName"></textarea>
+      <van-button type="primary" round block @click="goEditDocs">创建问卷</van-button>
     </div>
   </div>
 </template>
@@ -14,14 +14,29 @@ import util from '../util/index'
 export default {
   data() {
     return {
-      message: ''
+      docsName: ''
+    }
+  },
+  methods: {
+    //跳转到问卷编辑页
+    goEditDocs() {
+      if (!this.docsName) {
+        this.$toast.fail('请输入问卷名');
+        return
+      } else {
+        this.$router.push({
+          path: '/edit',
+          query: {
+            docsName: this.docsName
+          }
+        })
+      }
     }
   },
   created() {
     let _this = this
     //检查用户登录状态
     util.checkLogin(_this)
-    
   }
 };
 </script>

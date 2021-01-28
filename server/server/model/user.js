@@ -1,12 +1,35 @@
 //引入mongoose
 const mongoose = require('mongoose');
+
+const docsSchema = new mongoose.Schema({
+  documentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Document'
+  },
+  title: {//标题
+    type: String,
+  },
+  responseNums: {//填写人数
+    type: Number,
+    default: 0
+  },
+  status: {//状态
+    type: Number, //0 上架  1 下架
+    default: 1
+  },
+  registerTime: {//创建时间
+    type: Date,
+    default: Date.now
+  }
+})
+
 //创建用户集合规则
 const userSchema = new mongoose.Schema({
-  avatar: {
+  avatar: {//头像
     type: String,
     default: '/images/avatar_default.png'
   },
-  username: {
+  username: {//用户名
     type: String,
     default: 'users'
   },
@@ -18,13 +41,17 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  role: {
+  role: {//角色  users普通用户  admin管理员
     type: String,
     default: 'users'
   },
-  registerTime: {
+  registerTime: {//注册时间
     type: Date,
     default: Date.now
+  },
+  docsList: {//填过的问卷
+    type: [docsSchema],
+    default: []
   }
 }, {
   timestamps: true
