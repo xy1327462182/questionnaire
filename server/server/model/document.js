@@ -53,7 +53,8 @@ const documentSchema = new mongoose.Schema({
     required: true,
   },
   info: {//说明简介
-    type: String
+    type: String,
+    default: ''
   },
   author: {//作者 关联到用户集合
     type: mongoose.Schema.Types.ObjectId,
@@ -70,7 +71,7 @@ const documentSchema = new mongoose.Schema({
   },
   status: {//状态
     type: Number, //0 上架  1 下架
-    default: 1
+    default: 0
   },
   registerTime: {//创建时间
     type: Date,

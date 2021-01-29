@@ -39,7 +39,7 @@ router.post('/', async (req, res) => {
         role: role,
         username: username
       }])
-      console.log(newUser);
+      // console.log(newUser);
       res.json({
         code: 0,
         message: '恭喜您注册成功'

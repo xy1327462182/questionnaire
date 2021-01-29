@@ -11,6 +11,8 @@ const session = require('express-session')
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var adminRouter = require('./routes/admin');
+var quesRouter = require('./routes/ques');
+var docsRouter = require('./routes/docs');
 
 //创建服务器
 var app = express();
@@ -50,6 +52,8 @@ app.use((req, res, next) => {
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/admin', adminRouter)
+app.use('/ques', quesRouter)
+app.use('/docs', docsRouter)
 
 //处理错误
 app.use((err, req, res, next) => {

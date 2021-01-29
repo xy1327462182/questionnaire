@@ -6,7 +6,7 @@ const questionSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  type: {//类型 0单选 1多选 2打分  3输入框
+  type: {//类型 0单选 1多选 2打分  3输入框填空
     type: Number,
     default: 0,
     required: true
@@ -20,7 +20,8 @@ const questionSchema = new mongoose.Schema({
     default: []
   },
   value: {//表单类型的  是表单值
-    type: String
+    type: String,
+    default: ''
   },
   author: {//作者
     type: mongoose.Schema.Types.ObjectId,

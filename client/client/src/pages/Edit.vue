@@ -1,13 +1,68 @@
 <template>
   <div class="edit">
-    <div class="title">{{docsName}}</div>
+    <div class="title">{{docs.docsName}}</div>
     <div class="info_wrap">
       <textarea 
         class="info_text" 
         placeholder="请输入问卷说明或简介（非必填）"
-        v-model="docsInfo"
+        v-model="docs.docsInfo"
       >
       </textarea>
+    </div>
+    <div class="list">
+      <div class="ques_item" v-for="(item,index) in docs.questionList" :key="index">
+        <div class="ques_item_title">
+          <span class="ques_item_required_icon" v-if="item.required">*</span>
+          <span class="ques_item_index">{{index+1}}.</span>
+          <span class="ques_item_title_txt">{{item.title}}</span>
+          <span class="ques_item_type" v-if="item.type==0">[单选题]</span>
+          <span class="ques_item_type" v-if="item.type==1">[多选题]</span>
+          <span class="ques_item_type" v-if="item.type==2">[打分题]</span>
+          <span class="ques_item_type" v-if="item.type==3">[填空题]</span>
+        </div>
+        <div class="ques_item_option_wrap">
+
+          <van-radio-group v-if="item.type==0">
+            <van-radio 
+              v-for="radio in item.option"
+              :key="radio.name"
+              :name="radio.name"
+              icon-size="16px" 
+              class="ques_item_option_item"
+            >{{radio.name}}</van-radio>
+          </van-radio-group>
+
+          <van-checkbox-group v-if="item.type==1">
+            <van-checkbox 
+              v-for="check in item.option"
+              :key="check.name"
+              :name="check.name"
+              icon-size="16px" 
+              shape="square" 
+              class="ques_item_option_item"
+            >{{check.name}}</van-checkbox>
+          </van-checkbox-group>
+
+          <van-rate v-model="item.value" :count="10" gutter="10px" v-if="item.type==2"/>
+
+          <input type="text" class="ques_item_fill_ipt" v-model="item.value" v-if="item.type==3">
+
+        </div>
+        <div class="ques_item_fun_wrap">
+          <div class="ques_item_fun_item" @click="handleMoveUp(index)">
+            <van-icon name="arrow-up" class="ques_item_fun_item_icon" />
+            <span class="ques_item_fun_item_txt">上移</span>
+          </div>
+          <div class="ques_item_fun_item" @click="handleMoveDown(index)">
+            <van-icon name="arrow-down" class="ques_item_fun_item_icon" />
+            <span class="ques_item_fun_item_txt">下移</span>
+          </div>
+          <div class="ques_item_fun_item" @click="handleMoveDel(index)">
+            <van-icon name="delete-o" class="ques_item_fun_item_icon" />
+            <span class="ques_item_fun_item_txt">删除</span>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="add_btn_wrap">
       <van-button
@@ -26,20 +81,20 @@
         :style="{ height: '40%' }"
         class="addModal"
       >
-        <div class="addItem_wrap">
-          <div class="add_item" @click="handleRadioClick">
+        <div class="addItem_wrap" @click="handleAddItemClick">
+          <div class="add_item" @click="current = 0">
             <van-icon name="records" class="add_item_icon" />
             <span class="add_item_txt">单选题</span>
           </div>
-          <div class="add_item" @click="handleCheckedClick">
+          <div class="add_item" @click="current = 1">
             <van-icon name="description" class="add_item_icon" />
             <span class="add_item_txt">多选题</span>
           </div>
-          <div class="add_item" @click="handleScoreClick">
+          <div class="add_item" @click="current = 2">
             <van-icon name="star-o" class="add_item_icon" />
             <span class="add_item_txt">打分题</span>
           </div>
-          <div class="add_item" @click="handleFillClick">
+          <div class="add_item" @click="current = 3">
             <van-icon name="font-o" class="add_item_icon" />
             <span class="add_item_txt">填空题</span>
           </div>
@@ -74,7 +129,7 @@
               v-for="(item,index) in optionList"
               :key="index"  
             >
-              <van-icon name="clear" class="option_item_icon" />
+              <van-icon name="clear" class="option_item_icon" @click="delOption(index)" />
               <input type="text" v-model="item.name" class="option_item_ipt" placeholder="请输入选项">
             </div>
           </div>
@@ -95,30 +150,35 @@
             <span class="score_num">10分</span>
           </div>
           <div class="save_question_btn">
-            <van-button type="info" block round>确认</van-button>
+            <van-button type="info" block round @click="saveQuestion">确认</van-button>
           </div>
         </div>
       </van-popup>
     </div>
     <div class="save_btn_wrap">
-      <van-button type="primary" block round>保存问卷</van-button>
+      <van-button type="primary" block round @click="publishDocs">发布问卷</van-button>
     </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
+import util from '../util/index'
+
 export default {
   data() {
     return {
-      docsName: '',//问卷名称
-      docsInfo: '',//问卷介绍/说明
       addShow: false,//添加模态框显示/隐藏
       configShow: false,//问题配置模态框显示/隐藏
       questionTitle: '',//问题标题
       required: false,//必填判断
       current: 0, //当前点击的问题配置 0单选 1多选 2打分 3填空
-      value1: '',
-      optionList: [],//选项数组
+      optionList: [],//选项数组列表
+      docs: {//问卷数据
+        docsName: '',//问卷名称
+        docsInfo: '',//问卷介绍/说明
+        questionList: [],//问题列表
+      }
     };
   },
   methods: {
@@ -131,19 +191,16 @@ export default {
         this.configShow = true;
       }
     },
-    //单选点击事件
-    handleRadioClick() {
-      //处理模态框显示
-      this.handleModal()
-      //更新当前点击索引
-      this.current = 0
+    //初始化表单值
+    initValue() {
+      this.questionTitle = ''
+      this.optionList = []
     },
-    //多选点击事件
-    handleCheckedClick() {
+    handleAddItemClick() {
       //处理模态框显示
       this.handleModal()
-      //更新当前点击索引
-      this.current = 1
+      //初始化表单值
+      this.initValue()
     },
     //添加选项点击事件
     addOptions() {
@@ -153,23 +210,204 @@ export default {
       })
       this.optionList = list
     },
-    //打分题点击
-    handleScoreClick() {
-      //处理模态框显示
-      this.handleModal()
-      //更新当前点击索引
-      this.current = 2
+    //删除选项点击事件
+    delOption(index) {
+      //删除点击项
+      this.optionList.splice(index, 1)
     },
-    //填空点击
-    handleFillClick() {
-      //处理模态框显示
-      this.handleModal()
-      //更新当前点击索引
-      this.current = 3
+    //保存问题点击按钮
+    saveQuestion() {
+      //验证数据
+      const validateRes = this.validateValue()
+      if (validateRes) {
+        //如果验证结果为 true
+        //发送请求保存问题
+        this.requestSaveQuestion()
+      }
+    },
+    //验证数据
+    validateValue() {
+      if (!this.questionTitle) {
+        //如果没有问题标题
+        this.$toast.fail('请输入标题');
+        return false
+      }
+      if (this.current==0 || this.current==1) {
+        //如果是单选或多选
+        //1. 判断选项列表长度是否大于等于2
+        if (this.optionList.length < 2) {
+          this.$toast.fail('请至少输入两个选项');
+          return false
+        }
+        //2. 判断选项是否为空
+        let filterArr = this.optionList.filter((item,index)=>{
+          return !item.name
+        })
+        if (filterArr.length > 0) {
+          this.$toast.fail('请输入选项');
+          return false
+        }
+        return true
+      } else if (this.current==2 || this.current==3) {
+        //如果是打分或者填空
+        return true
+      }
+    },
+    //发送请求 保存问题
+    async requestSaveQuestion() {
+      this.$toast.loading('保存中');
+      const result = await axios({
+        url: '/api/ques',
+        method: 'post',
+        data: {
+          title: this.questionTitle,
+          type: this.current,
+          required: this.required,
+          option: this.optionList,
+          author: util.getUserInfo().id
+        }
+      })
+      if (result.data.code == 0) {
+        //添加成功
+        this.$toast.success(result.data.message);
+        // console.log(result.data.data);
+        //隐藏模态框
+        this.addShow = false;
+        this.configShow = false;
+        //将该问题数据添加到问卷中
+        this.addDocsQuestion(result.data.data)
+      } else {
+        this.$toast.fail(result.data.message);
+      }
+    },
+    //向问卷中添加问题
+    addDocsQuestion(data) {
+      /*
+      
+author: "6011289bc3510e13b4ce520d"
+createdAt: "2021-01-29T06:35:50.676Z"
+option: Array(4)
+0: {__ob__: Observer}
+1: {__ob__: Observer}
+2: {__ob__: Observer}
+3: {__ob__: Observer}
+length: 4
+__ob__: Observer {value: Array(4), dep: Dep, vmCount: 0}
+__proto__: Array
+registerTime: "2021-01-29T06:35:50.676Z"
+required: true
+status: 0
+title: "测试大怒单选"
+type: 0
+updatedAt: "2021-01-29T06:35:50.676Z"
+value: ""
+__v: 0
+_id: "6013acc68735352e1472cffe"
+      */
+      let list = this.docs.questionList
+      list.push(data)
+      this.docs.questionList = list
+      console.log(this.docs.questionList);
+    },
+    //题目上移
+    handleMoveUp(index) {
+      if (index == 0) {
+        this.$toast.fail('已经到顶了');
+        return
+      }
+      let temp = this.docs.questionList[index - 1]
+      this.$set(this.docs.questionList, index - 1, this.docs.questionList[index])
+      this.$set(this.docs.questionList, index, temp)
+      this.$toast.success('移动成功');
+    },
+    //题目下移
+    handleMoveDown(index) {
+      if (index == (this.docs.questionList.length - 1)) {
+        this.$toast.fail('已经到底了');
+        return
+      }
+      let temp = this.docs.questionList[index + 1]
+      this.$set(this.docs.questionList, index + 1, this.docs.questionList[index])
+      this.$set(this.docs.questionList, index, temp)
+      this.$toast.success('移动成功');
+    },
+    //题目删除
+    async handleMoveDel(index) {
+      this.$toast.loading('删除中');
+      //发送请求
+      const result = await axios({
+        url: '/api/ques/del',
+        method: 'get',
+        params: {
+          id: this.docs.questionList[index]._id
+        }
+      })
+      if (result.data.code == 0) {
+        //删除成功
+        this.docs.questionList.splice(index,1)
+        this.$toast.success('删除成功');
+      } else {
+        this.$toast.fail(result.data.message);
+      }
+    },
+    //发布问卷
+    async publishDocs() {
+      if (!this.docs.docsName) {
+        this.$toast.fail('没有问卷名');
+        return
+      }
+      if (this.docs.questionList.length <= 0) {
+        this.$toast.fail('没有设置题目');
+        return
+      }
+      this.$toast.loading('发布中');
+      //处理数据
+      let newQuestionList = []
+      this.docs.questionList.forEach((item,index)=>{
+        let options = []
+        item.option.forEach((opt)=>{
+          //问题选项中每一项添加填写人数字段
+          options.push({
+            name: opt.name,
+            resNums: 0
+          })
+        })
+        //问题数据对象处理
+        let quesObj = {
+          questionId: item._id,
+          title: item.title,
+          type: item.type,
+          options: options,
+          valueList: []
+        }
+        newQuestionList.push(quesObj)
+      })
+      //最终问卷数据
+      let data = {
+        title: this.docs.docsName,
+        info: this.docs.docsInfo,
+        author: util.getUserInfo().id,
+        questionList: newQuestionList,
+        responseNums: 0
+      }
+      //发送请求 添加问卷
+      const result = await axios({
+        url: '/api/docs',
+        method: 'post',
+        data: data
+      })
+      if (result.data.code == 0) {
+        //添加成功
+        this.$toast.success('发布成功');
+        //去结果页
+        this.$router.replace('/result')
+      } else {
+        this.$toast.fail(result.data.message);
+      }
     }
   },
   created() {
-    this.docsName = this.$route.query.docsName
+    this.docs.docsName = this.$route.query.docsName
   }
 };
 </script>
@@ -177,7 +415,8 @@ export default {
 <style lang="less" scoped>
 .edit {
   min-height: 90vh;
-  background-color: #eee;
+  background-color: #efefef;
+  padding-bottom: 60px;
   .title {
     width: 100%;
     background-color: #fff;
@@ -194,6 +433,7 @@ export default {
   .info_wrap {
     background-color: #fff;
     padding: 10px 20px;
+    border-bottom: 1px dashed #23a9f2;
     .info_text {
       width: 100%;
       height: 70px;
@@ -203,6 +443,74 @@ export default {
       font-size: 16px;
       padding: 12px;
       box-sizing: border-box;
+    }
+  }
+  .list{
+    .ques_item{
+      box-sizing: border-box;
+      border: 1px dashed #23a9f2;
+      background-color: #fff;
+      margin-top: 20px;
+      padding-top: 15px;
+      .ques_item_title{
+        font-size: 16px;
+        padding-left: 10px;
+        span{
+          margin-right: 3px;
+        }
+        .ques_item_required_icon{
+          color:  #f52e2a;
+        }
+        .ques_item_index{
+          font-weight: 600;
+        }
+        .ques_item_type{
+          color: #999;
+          margin-left: 3px;
+        }
+      }
+      .ques_item_option_wrap{
+        font-size: 15px;
+        padding-left: 18px;
+        margin: 18px 0;
+        .ques_item_option_item{
+          margin: 14px 0;
+        }
+        .ques_item_fill_ipt{
+          border: 1px solid #ccc;
+          width: 90%;
+          height: 30px;
+          line-height: 30px;
+          font-size: 16px;
+          padding-left: 12px;
+        }
+      }
+      .ques_item_fun_wrap{
+        width: 100%;
+        box-sizing: border-box;
+        border-top: .3px solid #ddd;
+        padding-left: 50px;
+        padding-right: 50px;
+        padding-top: 6px;
+        padding-bottom: 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .ques_item_fun_item{
+          color: #999;
+          display: flex;
+          flex-flow: column nowrap;
+          justify-content: space-between;
+          align-items: center;
+          .ques_item_fun_item_icon{
+            font-size: 20px;
+          }
+          .ques_item_fun_item_txt{
+            font-size: 14px;
+            margin-top: 2px;
+          }
+        }
+      }
     }
   }
   .add_btn_wrap {

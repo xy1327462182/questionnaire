@@ -192,7 +192,7 @@ export default {
       }
     }
   },
-  created() {
+  mounted() {
     let _this = this
     //检查用户登录状态
     util.checkLogin(_this)
