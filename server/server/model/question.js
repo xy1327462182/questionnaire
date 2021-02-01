@@ -11,7 +11,7 @@ const questionSchema = new mongoose.Schema({
     default: 0,
     required: true
   },
-  required: {
+  must: {
     type: Boolean,
     default: false
   },

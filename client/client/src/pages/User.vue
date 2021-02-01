@@ -49,6 +49,13 @@
             <van-button class="sub_btn" type="primary" block @click="updatePhone">保存</van-button>
           </div>
         </van-popup>
+        <van-cell
+          @click="goListPage"
+          icon="comment"
+          title="我填过的问卷"
+          size="large"
+          is-link
+        />
       </van-cell-group>
       <van-cell-group>
         <van-cell
@@ -190,6 +197,10 @@ export default {
         //更新失败
         this.$toast.fail(result.data.message);
       }
+    },
+    //填过的问卷列表页
+    goListPage() {
+      this.$router.push('/list')
     }
   },
   mounted() {
@@ -209,7 +220,7 @@ export default {
   background-color: #eee;
   .title {
     width: 100%;
-    height: 40px;
+    height: 38px;
     text-align: center;
     font-size: 18px;
   }

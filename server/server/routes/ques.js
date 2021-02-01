@@ -6,12 +6,12 @@ const Question = require('../model/question');
 
 //添加题目
 router.post('/', async (req, res) => {
-  let { title, type, required, option,author } = req.body
+  let { title, type, must, option,author } = req.body
   try{
     const result = await Question.insertMany([{
       title: title,
       type: type,
-      required: required,
+      must: must,
       option: option,
       author: author
     }])

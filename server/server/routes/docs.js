@@ -3,52 +3,10 @@ var router = express.Router();
 
 //引入User集合
 const Document = require('../model/document');
+const User = require('../model/user');
 
 //添加问卷
 router.post('/', async (req, res) => {
-  /*
-  docsInfo: ""
-  docsName: "关于测试的问卷"
-  questionList: Array(3)
-
-  questionList: Array(3)
-0:
-author: "6011289bc3510e13b4ce520d"
-createdAt: "2021-01-29T08:05:33.557Z"
-option: Array(2)
-
-option: Array(2)
-0:
-name: "是大法官"
-1:
-name: "好几款"
-length: 2
-
-
-registerTime: "2021-01-29T08:05:33.554Z"
-required: true
-status: 0
-title: "阿萨德股份"
-type: 0
-updatedAt: "2021-01-29T08:05:33.557Z"
-value: ""
-__v: 0
-_id: "6013c1cdc0f8540a3c2beeec"
-
-2:
-author: "6011289bc3510e13b4ce520d"
-createdAt: "2021-01-29T08:05:51.791Z"
-option: Array(0)
-registerTime: "2021-01-29T08:05:51.790Z"
-required: true
-status: 0
-title: "电饭锅和"
-type: 2
-updatedAt: "2021-01-29T08:05:51.791Z"
-value: ""
-__v: 0
-_id: "6013c1dfc0f8540a3c2beeee"
-  */
   let { title, info, author, questionList } = req.body
   try{
     const result = await Document.insertMany([{
@@ -90,7 +48,26 @@ router.get('/', async (req, res) => {
   }
 })
 
-//根据id 更新问卷上/下架状态
+//根据问卷id 查询问卷
+router.get('/doc', async (req, res) => {
+  let id = req.query.id
+  try{
+    const result = await Document.findOne({_id: id})
+    res.json({
+      code:0,
+      message: '查询成功',
+      data: result
+    })
+  }catch(e) {
+    console.log(e);
+    res.json({
+      code: 1,
+      message: '网络错误，稍后再试'
+    })
+  }
+})
+
+//根据问卷id 更新问卷上/下架状态
 router.post('/updateStatus', async (req, res) => {
   let { id, status } = req.body
   try{
@@ -109,7 +86,69 @@ router.post('/updateStatus', async (req, res) => {
   }
 })
 
-//根据id 删除问卷
+
+//根据问卷id 更新问卷
+router.post('/update', async (req, res) => {
+  let { id, title, userid, resultList } = req.body
+  //1.更新问卷的信息
+
+  //获取问卷信息
+  let docs = await Document.findOne({_id: id})
+  // console.log(docs);
+  
+  //1.1 问卷填写人数+1
+  docs.responseNums = docs.responseNums + 1
+
+  //1.2 题目回答数据处理
+  resultList.forEach((item,index)=>{
+    if (item.type == 0 && item.optionResult) {//单选
+      docs.questionList[item.index].options.forEach((option)=>{
+        if (option.name == item.optionResult) {
+          //选项回答人数+1
+          option.resNums = option.resNums + 1
+        }
+      })
+    } else if (item.type == 1 && item.optionResultList.length > 0) {//多选
+      item.optionResultList.forEach((check)=>{
+        docs.questionList[item.index].options.forEach((option)=>{
+          if (check == option.name) {
+            //选项回答人数+1
+            option.resNums = option.resNums + 1
+          }
+        })
+      })
+    } else if (item.type == 2 && item.optionResult) {//打分题
+      let scoreObj = docs.questionList[item.index].options[item.optionResult - 1]
+      scoreObj.resNums = scoreObj.resNums + 1
+    } else if (item.type == 3 && item.optionResult) {//填空题
+      docs.questionList[item.index].valueList.push(item.optionResult)
+    }
+  })
+
+  //2.更新用户信息
+  //将本问卷加入到填写人的docsList中
+  let fillUser = await User.findOne({_id: userid})
+  fillUser.docsList.unshift({
+    documentId: id,
+    title: title
+  })
+  try{
+    await Document.updateOne({_id: id}, docs)
+    await User.updateOne({_id: userid}, fillUser)
+    res.json({
+      code: 0,
+      message: '更新成功'
+    })
+  }catch(e){
+    console.log(e);
+    res.json({
+      code: 1,
+      message: '网络错误，稍后再试'
+    })
+  }
+})
+
+//根据问卷id 删除问卷
 router.get('/del', async (req, res) => {
   let { id } = req.query
   try{

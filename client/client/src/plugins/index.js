@@ -12,6 +12,7 @@ import { Popup } from 'vant';
 import { Icon } from 'vant';
 import { Toast } from 'vant';
 import { Switch } from 'vant';
+import { Empty } from 'vant';
 
 Vue.use(Button);
 Vue.use(Tabbar);
@@ -30,3 +31,4 @@ Vue.use(Popup);
 Vue.use(Icon);
 Vue.use(Toast);
 Vue.use(Switch);
+Vue.use(Empty);

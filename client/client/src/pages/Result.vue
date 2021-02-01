@@ -3,7 +3,8 @@
     <div class="success_icon_wrap">
       <van-icon name="checked" class="success_icon"/>
     </div>
-    <p class="success_txt">发布成功</p>
+    <p class="success_txt" v-if="current==0">发布成功</p>
+    <p class="success_txt" v-if="current==1">提交成功</p>
     <div class="btn_wrap">
       <van-button type="info" block @click="goHomePage">返回问卷列表</van-button>
     </div>
@@ -14,13 +15,16 @@
 export default {
   data() {
     return {
-
+      current: 0, //0 从发布页进来  1 从提交页进来
     }
   },
   methods: {
     goHomePage() {
       this.$router.replace('/home')
     }
+  },
+  created() {
+    this.current = this.$route.query.current
   }
 }
 </script>

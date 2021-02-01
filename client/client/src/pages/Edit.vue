@@ -12,7 +12,7 @@
     <div class="list">
       <div class="ques_item" v-for="(item,index) in docs.questionList" :key="index">
         <div class="ques_item_title">
-          <span class="ques_item_required_icon" v-if="item.required">*</span>
+          <span class="ques_item_required_icon" v-if="item.must">*</span>
           <span class="ques_item_index">{{index+1}}.</span>
           <span class="ques_item_title_txt">{{item.title}}</span>
           <span class="ques_item_type" v-if="item.type==0">[单选题]</span>
@@ -143,7 +143,7 @@
           </div>
           <div class="required_option_wrap">
             <span class="required_option_txt">此题目必须作答</span>
-            <van-switch v-model="required" size="25px" />
+            <van-switch v-model="must" size="25px" />
           </div>
           <div class="required_option_wrap" v-show="current==2">
             <span class="required_option_txt">分数设置</span>
@@ -171,7 +171,7 @@ export default {
       addShow: false,//添加模态框显示/隐藏
       configShow: false,//问题配置模态框显示/隐藏
       questionTitle: '',//问题标题
-      required: false,//必填判断
+      must: false,//必填判断
       current: 0, //当前点击的问题配置 0单选 1多选 2打分 3填空
       optionList: [],//选项数组列表
       docs: {//问卷数据
@@ -195,6 +195,7 @@ export default {
     initValue() {
       this.questionTitle = ''
       this.optionList = []
+      this.must = false
     },
     handleAddItemClick() {
       //处理模态框显示
@@ -232,6 +233,18 @@ export default {
         this.$toast.fail('请输入标题');
         return false
       }
+      //标题查重
+      let unique = true
+      this.docs.questionList.forEach((item,index)=>{
+        if (item.title == this.questionTitle) {
+          //有重复
+          unique = false
+        }
+      })
+      if (!unique) {
+        this.$toast.fail('问题标题重复');
+        return false
+      }
       if (this.current==0 || this.current==1) {
         //如果是单选或多选
         //1. 判断选项列表长度是否大于等于2
@@ -247,9 +260,31 @@ export default {
           this.$toast.fail('请输入选项');
           return false
         }
+        //3.判断选项是否重复
+        let repeatArr = []
+        this.optionList.forEach((item,index)=>{
+          if (repeatArr.indexOf(item.name) == -1) {
+            repeatArr.push(item.name)
+          }
+        })
+        console.log(repeatArr);
+        console.log(this.optionList);
+        if (repeatArr.length != this.optionList.length) {
+          this.$toast.fail('选项重复'); 
+          return false
+        }
         return true
-      } else if (this.current==2 || this.current==3) {
-        //如果是打分或者填空
+      } else if (this.current==2) {
+        //如果是打分，处理一下选项数据
+        let scoreList = []
+        for (let i=1;i<11;i++) {
+          scoreList.push({
+            name: i,//选项名就是索引值
+          })
+        }
+        this.optionList = scoreList
+        return true
+      } else if (this.current==3) {
         return true
       }
     },
@@ -262,7 +297,7 @@ export default {
         data: {
           title: this.questionTitle,
           type: this.current,
-          required: this.required,
+          must: this.must,
           option: this.optionList,
           author: util.getUserInfo().id
         }
@@ -282,32 +317,10 @@ export default {
     },
     //向问卷中添加问题
     addDocsQuestion(data) {
-      /*
-      
-author: "6011289bc3510e13b4ce520d"
-createdAt: "2021-01-29T06:35:50.676Z"
-option: Array(4)
-0: {__ob__: Observer}
-1: {__ob__: Observer}
-2: {__ob__: Observer}
-3: {__ob__: Observer}
-length: 4
-__ob__: Observer {value: Array(4), dep: Dep, vmCount: 0}
-__proto__: Array
-registerTime: "2021-01-29T06:35:50.676Z"
-required: true
-status: 0
-title: "测试大怒单选"
-type: 0
-updatedAt: "2021-01-29T06:35:50.676Z"
-value: ""
-__v: 0
-_id: "6013acc68735352e1472cffe"
-      */
       let list = this.docs.questionList
       list.push(data)
       this.docs.questionList = list
-      console.log(this.docs.questionList);
+      // console.log(this.docs.questionList);
     },
     //题目上移
     handleMoveUp(index) {
@@ -352,6 +365,7 @@ _id: "6013acc68735352e1472cffe"
     },
     //发布问卷
     async publishDocs() {
+      //验证问卷
       if (!this.docs.docsName) {
         this.$toast.fail('没有问卷名');
         return
@@ -377,6 +391,7 @@ _id: "6013acc68735352e1472cffe"
           questionId: item._id,
           title: item.title,
           type: item.type,
+          must: item.must,
           options: options,
           valueList: []
         }
@@ -400,7 +415,12 @@ _id: "6013acc68735352e1472cffe"
         //添加成功
         this.$toast.success('发布成功');
         //去结果页
-        this.$router.replace('/result')
+        this.$router.replace({
+          path: '/result',
+          query: {
+            current: 0
+          }
+        })
       } else {
         this.$toast.fail(result.data.message);
       }

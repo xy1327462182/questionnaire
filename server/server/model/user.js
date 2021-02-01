@@ -8,18 +8,6 @@ const docsSchema = new mongoose.Schema({
   },
   title: {//标题
     type: String,
-  },
-  responseNums: {//填写人数
-    type: Number,
-    default: 0
-  },
-  status: {//状态
-    type: Number, //0 上架  1 下架
-    default: 1
-  },
-  registerTime: {//创建时间
-    type: Date,
-    default: Date.now
   }
 })
 

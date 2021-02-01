@@ -5,8 +5,11 @@ import Register from '../pages/Register.vue'
 import Login from '../pages/Login.vue'
 import Docs from '../pages/Docs.vue'
 import Edit from '../pages/Edit.vue'
+import Share from '../pages/Share.vue'
+import Detail from '../pages/Detail.vue'
 import Result from '../pages/Result.vue'
 import User from '../pages/User.vue'
+import List from '../pages/List.vue'
 
 Vue.use(VueRouter)
 
@@ -41,6 +44,16 @@ const routes = [
     component: Edit
   },
   {
+    path: '/share',
+    name: 'Share',
+    component: Share
+  },
+  {
+    path: '/detail',
+    name: 'Detail',
+    component: Detail
+  },
+  {
     path: '/result',
     name: 'Result',
     component: Result
@@ -49,6 +62,11 @@ const routes = [
     path: '/user',
     name: 'User',
     component: User
+  },
+  {
+    path: '/list',
+    name: 'List',
+    component: List
   }
 ]
 

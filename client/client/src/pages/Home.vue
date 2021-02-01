@@ -6,7 +6,7 @@
       <van-button type="primary" round size="small">搜一下</van-button>
     </div>
 
-    <div class="docs_list">
+    <div class="docs_list" v-if="docsList.length!=0">
 
       <div 
         class="docs_item"
@@ -76,6 +76,8 @@
       </van-popup>
       
     </div>
+    <van-empty description="暂无问卷" v-if="docsList.length==0" />
+
   </div>
 </template>
 
@@ -121,7 +123,7 @@ export default {
       this.id = id
       this.title = title
       this.status = status
-      this.docsPopShow = true
+      this.docsPopShow = true 
     },
     //点击暂停 下架问卷
     async handleStop() {
@@ -178,6 +180,13 @@ export default {
         return
       } else {
         //去分享页
+        this.$router.push({
+          path: '/share',
+          query: {
+            id: this.id,
+            title: this.title
+          }
+        })
       }
 
     },
@@ -221,8 +230,10 @@ export default {
 <style lang="less" scoped>
 .home{
   background-color: #eee;
+  min-height: 100vh;
   padding-top: 54px;
   padding-bottom: 60px;
+  box-sizing: border-box;
   .top_bar{
     display: flex;
     justify-content: space-between;
@@ -233,6 +244,7 @@ export default {
     top: 0;
     left: 0;
     right: 0;
+    z-index: 99;
     .van-search{
       flex: 8;
     }

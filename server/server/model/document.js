@@ -28,6 +28,9 @@ const questionSchema = new mongoose.Schema({
     default: 0,
     required: true
   },
+  must: {
+    type: Boolean
+  },
   options: {//选项  每个选项在数组中
     type: [attrSchema],
     default: []
