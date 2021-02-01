@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-//引入User集合
+//引入集合
 const Document = require('../model/document');
 const User = require('../model/user');
 
@@ -25,6 +25,48 @@ router.post('/', async (req, res) => {
     return res.json({
       code: 1,
       message: '网络错误，稍后再试'
+    })
+  }
+})
+
+//获取问卷列表分页数据
+router.get('/list', async (req, res) => {
+  let { skip, limit } = req.query
+  try {
+    const docsList = await Document.find({}).skip(Number(skip)).limit(Number(limit)).exec()
+    // console.log(list);
+    //获取用户数据总条数
+    const docsNums = await Document.estimatedDocumentCount()
+    //总页数
+    const pages = Math.ceil(docsNums / limit)
+    //当前页数
+    let page = 1
+    if (skip == 0) {
+      page = 1
+    } else {
+      page = (skip / limit) + 1
+    }
+    let list = JSON.parse(JSON.stringify(docsList))
+
+    //生成创建人手机号
+    for (let i=0; i < list.length; i++) {
+      let user = await User.findOne({_id: list[i].author})
+      list[i].phone = user.phone
+    }
+    res.json({
+      code: 0,
+      data: {
+        list: list,
+        total: docsNums,
+        pages: pages,
+        page: page
+      }
+    })
+  } catch (e) {
+    console.log(e);
+    res.json({
+      code: 1,
+      message: '网络错误，请稍后再试'
     })
   }
 })
@@ -67,6 +109,40 @@ router.get('/doc', async (req, res) => {
   }
 })
 
+//根据问卷名称 搜索问卷
+router.get('/find', async (req, res) => {
+  let { keyword } = req.query
+  try{
+    let result = await Document.findOne({title: keyword}) 
+    // let titleReg = new RegExp(keyword, "g")
+    if (result) {
+      let user = await User.findOne({_id: result.author})
+      let docs = JSON.parse(JSON.stringify(result))
+      docs.phone = user.phone
+      return res.json({
+        code: 0,
+        data: {
+          list: [docs],
+          pages: 1,
+          total: 1,
+          page: 1
+        }
+      })
+    } else {
+      return res.json({
+        code: 1,
+        message: '什么也没搜到'
+      })
+    }
+  }catch(e){
+    console.log(e);
+    res.json({
+      code:1,
+      message: '网络错误，稍后再试'
+    })
+  }
+})
+
 //根据问卷id 更新问卷上/下架状态
 router.post('/updateStatus', async (req, res) => {
   let { id, status } = req.body
@@ -85,7 +161,6 @@ router.post('/updateStatus', async (req, res) => {
     })
   }
 })
-
 
 //根据问卷id 更新问卷
 router.post('/update', async (req, res) => {

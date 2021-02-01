@@ -267,8 +267,8 @@ export default {
             repeatArr.push(item.name)
           }
         })
-        console.log(repeatArr);
-        console.log(this.optionList);
+        // console.log(repeatArr);
+        // console.log(this.optionList);
         if (repeatArr.length != this.optionList.length) {
           this.$toast.fail('选项重复'); 
           return false

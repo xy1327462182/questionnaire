@@ -186,7 +186,7 @@ export default {
       }
     }
   },
-  created() {
+  mounted() {
     //获取用户列表分页数据
     this.getUserList(0, 5)
   }

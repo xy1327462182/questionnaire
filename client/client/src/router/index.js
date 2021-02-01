@@ -10,6 +10,7 @@ import Detail from '../pages/Detail.vue'
 import Result from '../pages/Result.vue'
 import User from '../pages/User.vue'
 import List from '../pages/List.vue'
+import Data from '../pages/Data.vue'
 
 Vue.use(VueRouter)
 
@@ -57,6 +58,11 @@ const routes = [
     path: '/result',
     name: 'Result',
     component: Result
+  },
+  {
+    path: '/data',
+    name: 'Data',
+    component: Data
   },
   {
     path: '/user',

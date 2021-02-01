@@ -3,7 +3,7 @@
     <div class="top_bar">
       <van-search v-model="keyword" shape="round" placeholder="搜索问卷">
       </van-search>
-      <van-button type="primary" round size="small">搜一下</van-button>
+      <van-button type="primary" round size="small" @click="searchDocs">搜一下</van-button>
     </div>
 
     <div class="docs_list" v-if="docsList.length!=0">
@@ -192,7 +192,13 @@ export default {
     },
     //数据结果点击
     handleDataResult() {
-      
+      //去结果页
+      this.$router.push({
+        path: '/data',
+        query: {
+          id: this.id
+        }
+      })
     },
     //删除问卷点击
     async handleDelDocs() {
@@ -215,6 +221,28 @@ export default {
       } else {
         this.$toast.fail(result.data.message);
       }
+    },
+    //搜索问卷
+    async searchDocs() {
+      if (!this.keyword) {
+        //没关键词
+        this.$toast.fail('请填写标题');
+        return
+      }
+      this.$toast.loading('搜索中');
+      let titleReg = new RegExp(this.keyword, "g")
+      let lastDocsList = []
+
+      this.docsList.forEach((item,index)=>{
+        let regResult = item.title.match(titleReg)
+        if (regResult) {
+          //匹配到
+          lastDocsList.push(item)
+        }
+      })
+      // console.log(lastDocsList);
+      this.docsList = lastDocsList
+      this.$toast.clear();
     }
   },
   mounted() {

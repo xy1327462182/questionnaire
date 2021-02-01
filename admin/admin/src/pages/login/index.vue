@@ -68,7 +68,8 @@ export default {
         method: 'post',
         data: {
           phone: this.phone,
-          password: this.pwd
+          password: this.pwd,
+          admin: true
         }
       })
       //console.log(loginRes);
@@ -80,6 +81,9 @@ export default {
         this.$router.replace({
           path: '/home'
         })
+      } else {
+        this.errmsg = loginRes.data.message,
+        this.errShow = true
       }
     },
   },

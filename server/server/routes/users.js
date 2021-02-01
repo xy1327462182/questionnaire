@@ -262,7 +262,7 @@ router.get('/del', async (req, res) => {
 //登录
 router.post('/login', async (req, res) => {
   //获取post请求参数
-  const { phone, password } = req.body
+  const { phone, password, admin } = req.body
   // console.log(phone);
 
   //向数据库查询用户数据
@@ -272,7 +272,17 @@ router.post('/login', async (req, res) => {
   })
 
   if (user) {
-    console.log(user);
+    // console.log(user);
+    //查询到了
+    if (admin) {
+      //如果admin参数为true 是请求登录管理系统的
+      if (user.role != 'admin') {
+        return res.json({
+          code: 1,
+          message: '暂无权限'
+        })
+      }
+    }
     //设置session
     req.session.userInfo = user
     return res.json({

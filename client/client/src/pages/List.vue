@@ -68,6 +68,7 @@ export default {
 .list {
   background-color: #eee;
   min-height: 90vh;
+  padding-bottom: 60px;
   .top_bar {
     background-color: #fff;
     width: 100%;

@@ -1,14 +1,11 @@
 <template>
-  <el-table :data="tableData" border style="width: 100%">
-    <el-table-column prop="date" label="创建时间" width="180"> </el-table-column>
-    <el-table-column prop="name" label="创建人" width="180"> </el-table-column>
-    <el-table-column prop="address" label="问卷标题"> </el-table-column>
-    <el-table-column prop="address" label="答卷数量"> </el-table-column>
-    <el-table-column label="操作" width="160">
+  <el-table :data="docsList" v-loading="loading" border style="width: 100%">
+    <el-table-column prop="registerTime" label="创建时间" width="180"> </el-table-column>
+    <el-table-column prop="phone" label="创建人" width="160"> </el-table-column>
+    <el-table-column prop="title" label="问卷标题"> </el-table-column>
+    <el-table-column prop="responseNums" label="答卷数量" width="100"> </el-table-column>
+    <el-table-column label="操作" width="120">
       <template slot-scope="scope">
-        <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
-          >编辑</el-button
-        >
         <el-button
           size="mini"
           type="danger"
@@ -24,42 +21,30 @@
 export default {
   data() {
     return {
-      tableData: [
-        {
-          date: "2016-05-02",
-          name: "王小虎",
-          address: "上海市普陀区",
-        },
-        {
-          date: "2016-05-04",
-          name: "王小虎",
-          address: "上海市普陀区",
-        },
-        {
-          date: "2016-05-01",
-          name: "王小虎",
-          address: "上海市普陀区",
-        },
-         {
-          date: "2016-05-01",
-          name: "王小虎",
-          address: "上海市普陀区",
-        },
-        {
-          date: "2016-05-03",
-          name: "王小虎",
-          address: "上海市普陀区",
-        },
-      ],
     };
+  },
+  props: {
+    docsList: {
+      type: Array,
+      default: [],
+    },
+    loading: {
+      type: Boolean,
+      default: true,
+    },
   },
   methods:{
     handleEdit() {
 
     },
-    handleDelete() {
-
-    }
+    //删除
+    async handleDelete(index, record) {
+      //获取id
+      let id = record._id
+      // console.log(id);
+      //调用父组件的删除方法
+      this.$emit('del-docs', id)
+    },
   }
 };
 </script>
